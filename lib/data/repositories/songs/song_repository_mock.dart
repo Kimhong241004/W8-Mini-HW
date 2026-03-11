@@ -4,6 +4,7 @@ import '../../../model/songs/song.dart';
 import 'song_repository.dart';
 
 class SongRepositoryMock implements SongRepository {
+  int _fetchCount = 0;
   final List<Song> _songs = [
     Song(
       id: 's1',
@@ -39,8 +40,13 @@ class SongRepositoryMock implements SongRepository {
 
   @override
   Future<List<Song>> fetchSongs() async {
-    await Future.delayed(Duration(minutes: 2), () {});
- 
+    await Future.delayed(const Duration(seconds: 3));
+
+    _fetchCount++; 
+    if (_fetchCount %2 == 0)  { // check value
+      throw Exception ('Failed to fetch songs (simulated error)');
+    }
+
     return _songs;
   }
 

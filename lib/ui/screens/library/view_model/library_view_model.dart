@@ -8,6 +8,9 @@ class LibraryViewModel extends ChangeNotifier {
   final PlayerState playerState;
   List<Song>? _songs;
 
+  bool isLoading = false;
+  Object? error;
+
   LibraryViewModel({required this.songRepository, required this.playerState}) {
     playerState.addListener(notifyListeners);
 
@@ -24,11 +27,22 @@ class LibraryViewModel extends ChangeNotifier {
   }
 
   void _init() async {
-    // 1 - Fetch songs
-    _songs = await songRepository.fetchSongs();
-
-    // 2 - notify listeners
+    // 1 - Set loading state
+    isLoading = true;
+    error = null;
     notifyListeners();
+
+    try {
+      // 2 - Fetch songs
+      _songs = await songRepository.fetchSongs();
+    } catch (e) {
+      // 3 - Capture error
+      error = e;
+    } finally {
+      // 4 - Done loading
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   bool isSongPlaying(Song song) => playerState.currentSong == song;
